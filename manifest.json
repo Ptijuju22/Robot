@@ -1,0 +1,6 @@
+{
+	"name": "Robot",
+	"version": "0.1.0",
+	"icon_path": "data/images/icon.png",
+	"main_file": "robot.py"
+}
