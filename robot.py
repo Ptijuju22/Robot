@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from activity import Control_activity
+from activities import Control_activity
 from globals import App
-from view import Control_view
+from views import Control_view
 
 __author__ = "Julien Dubois; Melia Conguisti"
 __version__ = "0.1.0"
@@ -11,7 +11,7 @@ from lemapi.api import start_activity
 
 
 def main(app_id):
-    App.app_id = app_id
+    App.ID = app_id
     create_control_activity()
 
 

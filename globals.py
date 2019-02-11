@@ -5,4 +5,6 @@ __version__ = "0.1.0"
 
 
 class App:
-    app_id = 0
+    ID = 0
+    SERVER_ADDRESS = "192.168.0.13"
+    SERVER_PORT = 41520
