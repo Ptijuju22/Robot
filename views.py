@@ -19,6 +19,8 @@ class Control_view(View):
             size=(w * 0.25, h * 0.25), anchor=(0, 0), text="Gauche")
         self.add_widget("right_button", Button, (w * 0.75, h * 0.5), \
             size=(w * 0.25, h * 0.25), anchor=(0, 0), text="Droite")
+        self.add_widget("quit_button", Button, (w * 0.5, h * 0.5), \
+            size=(w * 0.2, h * 0.2), anchor=(0, 0), text="Quitter")
 
     def update(self):
         get_gui().draw_background_color((255, 255, 255))

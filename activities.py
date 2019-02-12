@@ -6,7 +6,7 @@ __author__ = "Julien Dubois; Melia Conguisti"
 __version__ = "0.1.0"
 
 from lemapi.activity import Activity
-from lemapi.api import get_listener_manager
+from lemapi.api import get_listener_manager, stop_app
 from lemapi.event_manager import Event
 from lemapi.network import Client
 
@@ -41,11 +41,8 @@ class Control_activity(Activity):
         event = Event(self.button_return, "right")
         self.view.widgets["right_button"].stateEvents.append(event)
 
-        event = Event(self.stop_move)
-        self.view.widgets["forward_button"].clickEvents.append(event)
-        self.view.widgets["backward_button"].clickEvents.append(event)
-        self.view.widgets["left_button"].clickEvents.append(event)
-        self.view.widgets["right_button"].clickEvents.append(event)
+        event = Event(stop_app)
+        self.view.widgets["quit_button"].clickEvents.append(event)
 
     def button_return(self, hovered, clicked, middle_clicked, right_clicked, \
         direction):
@@ -53,43 +50,15 @@ class Control_activity(Activity):
         if self.clicked[direction]:
             if not clicked:
                 self.clicked[direction] = False
-                self.stop_move()
+                self.send_move("stop")
         elif clicked:
             self.clicked[direction] = True
+            self.send_move(direction)
 
-            if direction == "forward":
-                self.forward()
-            elif direction == "backward":
-                self.backward()
-            elif direction == "left":
-                self.left()
-            else:
-                self.right()
-
-    def stop_move(self):
+    def send_move(self, move):
         if self.client:
             if self.client.connected:
-                self.client.send_data("stop")
-
-    def forward(self):
-        if self.client:
-            if self.client.connected:
-                self.client.send_data("forward")
-
-    def backward(self):
-        if self.client:
-            if self.client.connected:
-                self.client.send_data("backward")
-
-    def left(self):
-        if self.client:
-            if self.client.connected:
-                self.client.send_data("left")
-
-    def right(self):
-        if self.client:
-            if self.client.connected:
-                self.client.send_data("right")
+                self.client.send_msg(move)
 
     def sleep(self):
         if self.client:
