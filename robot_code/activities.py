@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from globals import App
+from robot_code.globals import App
 
 __author__ = "Julien Dubois; Melia Conguisti"
 __version__ = "0.1.0"
@@ -23,7 +23,6 @@ class Control_activity(Activity):
             }
         self.client = None
 
-        self.init_client()
         self.init_events()
 
     def init_client(self):
@@ -32,28 +31,24 @@ class Control_activity(Activity):
 
     def init_events(self):
         lm = get_listener_manager()
-        event = Event(self.button_return, "forward")
-        self.view.widgets["forward_button"].stateEvents.append(event)
-        event = Event(self.button_return, "backward")
-        self.view.widgets["backward_button"].stateEvents.append(event)
-        event = Event(self.button_return, "left")
-        self.view.widgets["left_button"].stateEvents.append(event)
-        event = Event(self.button_return, "right")
-        self.view.widgets["right_button"].stateEvents.append(event)
+        event = Event(self.send_move, "forward")
+        self.view.widgets["forward_button"].clickEvents.append(event)
+        event = Event(self.send_move, "backward")
+        self.view.widgets["backward_button"].clickEvents.append(event)
+        event = Event(self.send_move, "left")
+        self.view.widgets["left_button"].clickEvents.append(event)
+        event = Event(self.send_move, "right")
+        self.view.widgets["right_button"].clickEvents.append(event)
 
+        event = Event(self.send_move, "stop")
+        self.view.widgets["forward_button"].endClickEvents.append(event)
+        self.view.widgets["backward_button"].endClickEvents.append(event)
+        self.view.widgets["left_button"].endClickEvents.append(event)
+        self.view.widgets["right_button"].endClickEvents.append(event)
+        self.view.widgets["quit_button"].endClickEvents.append(event)
+        
         event = Event(stop_app)
-        self.view.widgets["quit_button"].clickEvents.append(event)
-
-    def button_return(self, hovered, clicked, middle_clicked, right_clicked, \
-        direction):
-
-        if self.clicked[direction]:
-            if not clicked:
-                self.clicked[direction] = False
-                self.send_move("stop")
-        elif clicked:
-            self.clicked[direction] = True
-            self.send_move(direction)
+        self.view.widgets["quit_button"].endClickEvents.append(event)
 
     def send_move(self, move):
         if self.client:
