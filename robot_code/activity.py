@@ -32,11 +32,14 @@ class Control_activity(Activity):
         def connect():
             self.client = Client(App.SERVER_ADDRESS, App.SERVER_PORT)
             if self.client.connect():
-                self.view.add_toast("Connection établie !")
+                self.view.add_toast("Connection établie !", \
+                    textColor=(0, 0, 0, 255))
             else:
-                self.view.add_toast("Aucun robot détecté !")
+                self.view.add_toast("Aucun robot détecté !", \
+                    textColor=(0, 0, 0, 255))
 
-        self.view.add_toast("Connection au robot...")
+        self.view.add_toast("Connection au robot...", \
+            textColor=(0, 0, 0, 255))
         threading.Thread(target=connect).start()
 
     def init_events(self):
