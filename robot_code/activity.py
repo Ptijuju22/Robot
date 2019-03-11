@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from robot_code.globals import App
+from robot_code.constants import App
 
-__author__ = "Julien Dubois; Melia Conguisti"
+__author__ = "Julien Dubois"
 __version__ = "0.1.0"
+
+import threading
 
 from lemapi.activity import Activity
 from lemapi.api import get_listener_manager, stop_app
@@ -27,8 +29,15 @@ class Control_activity(Activity):
         self.init_events()
 
     def init_client(self):
-        self.client = Client(App.SERVER_ADDRESS, App.SERVER_PORT)
-        connected = self.client.connect()
+        def connect():
+            self.client = Client(App.SERVER_ADDRESS, App.SERVER_PORT)
+            if self.client.connect():
+                self.view.add_toast("Connection établie !")
+            else:
+                self.view.add_toast("Aucun robot détecté !")
+
+        self.view.add_toast("Connection au robot...")
+        threading.Thread(target=connect).start()
 
     def init_events(self):
         lm = get_listener_manager()

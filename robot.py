@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from robot_code.activities import Control_activity
-from robot_code.globals import App
-from robot_code.views import Control_view
+from robot_code.activity import Control_activity
+from robot_code.constants import App
+from robot_code.view import Control_view
 
 __author__ = "Julien Dubois; Melia Conguisti"
 __version__ = "0.1.0"

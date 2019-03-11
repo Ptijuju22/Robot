@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__author__ = "Julien Dubois; Melia Conguisti"
+__author__ = "Julien Dubois"
 __version__ = "0.1.0"
 
 
