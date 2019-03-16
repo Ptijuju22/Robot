@@ -43,23 +43,27 @@ class Control_activity(Activity):
         threading.Thread(target=connect).start()
 
     def init_events(self):
-        lm = get_listener_manager()
+        lm = self.listener_manager
 
         event = Event(self.send_move, "forward")
         self.view.widgets["forward_button"].clickEvents.append(event)
         lm.km.add_key_down_event(event, K_UP)
+        lm.cm.add_joy_up_event(event)
+
         event = Event(self.send_move, "backward")
         self.view.widgets["backward_button"].clickEvents.append(event)
         lm.km.add_key_down_event(event, K_DOWN)
+        lm.cm.add_joy_down_event(event)
+
         event = Event(self.send_move, "left")
         self.view.widgets["left_button"].clickEvents.append(event)
         lm.km.add_key_down_event(event, K_LEFT)
+        lm.cm.add_joy_left_event(event)
+
         event = Event(self.send_move, "right")
         self.view.widgets["right_button"].clickEvents.append(event)
         lm.km.add_key_down_event(event, K_RIGHT)
-
-        event = Event(self.on_joy_motion)
-        lm.cm.add_joy_motion_event(event)
+        lm.cm.add_joy_right_event(event)
 
         event = Event(self.send_move, "stop")
         self.view.widgets["forward_button"].endClickEvents.append(event)
@@ -67,9 +71,17 @@ class Control_activity(Activity):
         self.view.widgets["left_button"].endClickEvents.append(event)
         self.view.widgets["right_button"].endClickEvents.append(event)
         self.view.widgets["quit_button"].endClickEvents.append(event)
+        lm.km.add_key_down_event(event, K_UP)
+        lm.km.add_key_down_event(event, K_DOWN)
+        lm.km.add_key_down_event(event, K_LEFT)
+        lm.km.add_key_down_event(event, K_RIGHT)
+        lm.cm.add_joy_dead_event(event)
 
         event = Event(stop_app)
         self.view.widgets["quit_button"].endClickEvents.append(event)
+        lm.km.add_key_down_event(event, K_ESCAPE)
+        lm.cm.add_button_pressed_event(event, "button_b")
+
 
     def on_joy_motion(self, x, y, old_x, old_y):
         if abs(x) > abs(y):
