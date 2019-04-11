@@ -10,7 +10,7 @@ import threading
 from lemapi.activity import Activity
 from lemapi.api import get_listener_manager, stop_app
 from lemapi.event_manager import Event
-from lemapi.network import Client
+from lemapi.network import Client, Wifi
 from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_UP, K_ESCAPE
 
 
@@ -25,13 +25,18 @@ class Control_activity(Activity):
             "right": False
             }
         self.client = None
+        self.old_network = ""
 
         self.init_events()
 
     def init_client(self):
         def connect():
+            self.old_network = Wifi.get_current_ssid()
+            Wifi.add_network("LemRobotHotspot", "m3liaR0b0t")
+            Wifi.connect("LemRobotHotspot")
+
             self.client = Client(App.SERVER_ADDRESS, App.SERVER_PORT)
-            if self.client.connect():
+            if self.client.connect(App.CONNECTION_TIMEOUT):
                 self.view.add_toast("Connection établie !", \
                     textColor=(0, 0, 0, 255))
             else:
@@ -121,4 +126,5 @@ class Control_activity(Activity):
     def destroy(self):
         if self.client:
             self.client.disconnect()
+        Wifi.connect(self.old_network)
         super().destroy()
