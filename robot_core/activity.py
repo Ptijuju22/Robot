@@ -50,6 +50,7 @@ class Control_activity(Activity):
                     textColor=(0, 0, 0, 255))
                 self.mixer.clear()
                 self.play_connection_error_sound()
+                self.disable_buttons()
 
         self.view.add_toast("Connection au robot...", textColor=(0, 0, 0, 255))
         self.play_connection_sound()
@@ -118,6 +119,12 @@ class Control_activity(Activity):
         sound = ap.get_sound(os.path.join(Res.SOUND_PATH, "connection_error.wav"))
         sound.play()
         self.mixer.add_sound(sound)
+
+    def disable_buttons(self):
+        self.view.widgets["forward_button"].config(enable=False)
+        self.view.widgets["backward_button"].config(enable=False)
+        self.view.widgets["right_button"].config(enable=False)
+        self.view.widgets["left_button"].config(enable=False)
 
     def on_joy_motion(self, x, y, old_x, old_y):
         if abs(x) > abs(y):
