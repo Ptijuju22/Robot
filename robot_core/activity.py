@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from robot_code.constants import App
+from robot_core.constants import App, Res
 
 __author__ = "Julien Dubois"
 __version__ = "0.1.0"
 
+import os
 import threading
 
 from lemapi.activity import Activity
-from lemapi.api import get_listener_manager, stop_app
+from lemapi.api import get_listener_manager, stop_app, get_audio_player
+from lemapi.audio import Mixer
 from lemapi.event_manager import Event
 from lemapi.network import Client, Wifi
 from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_UP, K_ESCAPE
@@ -26,7 +28,9 @@ class Control_activity(Activity):
             }
         self.client = None
         self.old_network = ""
+        self.mixer = None
 
+        self.init_mixer()
         self.init_events()
 
     def init_client(self):
@@ -39,13 +43,22 @@ class Control_activity(Activity):
             if self.client.connect(App.CONNECTION_TIMEOUT):
                 self.view.add_toast("Connection établie !", \
                     textColor=(0, 0, 0, 255))
+                self.mixer.clear()
+                self.play_connected_sound()
             else:
                 self.view.add_toast("Aucun robot détecté !", \
                     textColor=(0, 0, 0, 255))
+                self.mixer.clear()
+                self.play_connection_error_sound()
 
-        self.view.add_toast("Connection au robot...", \
-            textColor=(0, 0, 0, 255))
+        self.view.add_toast("Connection au robot...", textColor=(0, 0, 0, 255))
+        self.play_connection_sound()
         threading.Thread(target=connect).start()
+
+    def init_mixer(self):
+        ap = get_audio_player()
+        self.mixer = Mixer(ap)
+        ap.add_mixer(self.mixer)
 
     def init_events(self):
         lm = self.listener_manager
@@ -87,6 +100,24 @@ class Control_activity(Activity):
         lm.km.add_key_down_event(event, K_ESCAPE)
         lm.cm.add_button_pressed_event(event, "button_b")
 
+    def play_connection_sound(self):
+        ap = get_audio_player()
+        sound = ap.get_sound(os.path.join(Res.SOUND_PATH, "connecting.wav"))
+        sound.play()
+        sound.set_play_count(-1)
+        self.mixer.add_sound(sound)
+
+    def play_connected_sound(self):
+        ap = get_audio_player()
+        sound = ap.get_sound(os.path.join(Res.SOUND_PATH, "connected.wav"))
+        sound.play()
+        self.mixer.add_sound(sound)
+
+    def play_connection_error_sound(self):
+        ap = get_audio_player()
+        sound = ap.get_sound(os.path.join(Res.SOUND_PATH, "connection_error.wav"))
+        sound.play()
+        self.mixer.add_sound(sound)
 
     def on_joy_motion(self, x, y, old_x, old_y):
         if abs(x) > abs(y):
@@ -126,5 +157,10 @@ class Control_activity(Activity):
     def destroy(self):
         if self.client:
             self.client.disconnect()
+
         Wifi.connect(self.old_network)
+        
+        self.mixer.clear()
+        get_audio_player().remove_mixer(self.mixer)
+        
         super().destroy()

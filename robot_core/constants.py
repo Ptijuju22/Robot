@@ -9,3 +9,11 @@ class App:
     SERVER_ADDRESS = "10.3.141.1"
     SERVER_PORT = 41520
     CONNECTION_TIMEOUT = 10
+
+class Res:
+	SOUND_PATH = "data/sounds/"
+	SOUNDS = (
+		"connected.wav",
+		"connecting.wav",
+		"connection_error.wav"
+	)
