@@ -2,7 +2,7 @@
 
 from robot_core.activity import Control_activity
 from robot_core.constants import App
-from robot_core.util import load_sounds
+from robot_core.util import load_images, load_sounds
 from robot_core.view import Control_view
 
 __author__ = "Julien Dubois; Melia Conguisti"
@@ -26,7 +26,8 @@ def exit():
 
 
 def load_resources():
-	load_sounds()
+    load_images()
+    load_sounds()
 
 
 def create_control_activity():

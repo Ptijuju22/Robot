@@ -2,5 +2,6 @@
 	"name": "Robot",
 	"version": "0.1.0",
 	"icon_path": "data/images/icon.png",
+	"splash_image": "data/images/splash.png",
 	"main_file": "robot.py"
 }

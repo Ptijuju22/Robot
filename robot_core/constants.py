@@ -17,3 +17,12 @@ class Res:
 		"connecting.wav",
 		"connection_error.wav"
 	)
+	IMAGE_PATH = "data/images/"
+	IMAGES = (
+		"connected.png",
+		"disconnected.png",
+		"wifi_0.png",
+		"wifi_1.png",
+		"wifi_2.png",
+		"wifi_3.png"
+	)

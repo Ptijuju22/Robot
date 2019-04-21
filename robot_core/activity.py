@@ -9,10 +9,12 @@ import os
 import threading
 
 from lemapi.activity import Activity
-from lemapi.api import get_listener_manager, stop_app, get_audio_player
+from lemapi.api import get_listener_manager, stop_app, get_audio_player, get_task_manager
 from lemapi.audio import Mixer
 from lemapi.event_manager import Event
 from lemapi.network import Client, Wifi
+from lemapi.task_manager import Loop_task_delay
+
 from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_UP, K_ESCAPE
 
 
@@ -29,9 +31,12 @@ class Control_activity(Activity):
         self.client = None
         self.old_network = ""
         self.mixer = None
+        self.animation_task = None
 
+        self.view.disable_buttons()
         self.init_mixer()
         self.init_events()
+        self.init_tasks()
 
     def init_client(self):
         def connect():
@@ -40,17 +45,26 @@ class Control_activity(Activity):
             Wifi.connect("LemRobotHotspot")
 
             self.client = Client(App.SERVER_ADDRESS, App.SERVER_PORT)
-            if self.client.connect(App.CONNECTION_TIMEOUT):
-                self.view.add_toast("Connection établie !", \
-                    textColor=(0, 0, 0, 255))
-                self.mixer.clear()
-                self.play_connected_sound()
-            else:
-                self.view.add_toast("Aucun robot détecté !", \
-                    textColor=(0, 0, 0, 255))
-                self.mixer.clear()
-                self.play_connection_error_sound()
-                self.disable_buttons()
+            connected = self.client.connect(App.CONNECTION_TIMEOUT)
+            
+            try:
+                if connected:
+                    self.view.add_toast("Connection établie !", textColor=(0, 0, 0, 255))
+                    self.mixer.clear()
+                    self.play_connected_sound()
+                    self.view.set_connected_image(True)
+                    self.view.enable_buttons()
+                else:
+                    self.view.add_toast("Aucun robot détecté !", textColor=(0, 0, 0, 255))
+                    self.mixer.clear()
+                    self.play_connection_error_sound()
+                    self.view.set_connected_image(False)
+            except Exception:
+                pass
+
+            if self.animation_task:
+                self.animation_task.stop()
+                self.animation_task = None
 
         self.view.add_toast("Connection au robot...", textColor=(0, 0, 0, 255))
         self.play_connection_sound()
@@ -101,6 +115,11 @@ class Control_activity(Activity):
         lm.km.add_key_down_event(event, K_ESCAPE)
         lm.cm.add_button_pressed_event(event, "button_b")
 
+    def init_tasks(self):
+        tkmgr = get_task_manager()
+        self.animation_task = Loop_task_delay(0.4, self.view.update_connection_animation)
+        tkmgr.add_task("connection_animation", self.animation_task)
+
     def play_connection_sound(self):
         ap = get_audio_player()
         sound = ap.get_sound(os.path.join(Res.SOUND_PATH, "connecting.wav"))
@@ -119,12 +138,6 @@ class Control_activity(Activity):
         sound = ap.get_sound(os.path.join(Res.SOUND_PATH, "connection_error.wav"))
         sound.play()
         self.mixer.add_sound(sound)
-
-    def disable_buttons(self):
-        self.view.widgets["forward_button"].config(enable=False)
-        self.view.widgets["backward_button"].config(enable=False)
-        self.view.widgets["right_button"].config(enable=False)
-        self.view.widgets["left_button"].config(enable=False)
 
     def on_joy_motion(self, x, y, old_x, old_y):
         if abs(x) > abs(y):
@@ -162,6 +175,9 @@ class Control_activity(Activity):
         super().wakeup()
 
     def destroy(self):
+        if self.animation_task:
+            self.animation_task.stop()
+
         if self.client:
             self.client.disconnect()
 
